@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Sat Dec  4 15:56:25 2021
+Quartus Prime Version : 21.1.0 Build 842 10/21/2021 SJ Lite Edition
+Revision Name : lcd1602_IIC
+Top-level Entity Name : lcd_drive
+Family : Cyclone IV E
+Total logic elements : 1,171
+    Total combinational functions : 749
+    Dedicated logic registers : 884
+Total registers : 884
+Total pins : 4
+Total virtual pins : 0
+Total memory bits : 3,968
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0

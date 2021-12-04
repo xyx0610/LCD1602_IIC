@@ -1,0 +1,5 @@
+Warning (10268): Verilog HDL information at myiic_writebyte.v(46): always construct contains both blocking and non-blocking assignments File: E:/FPGA_Study/MyStudy2/LCD1602_IIC/rtl/myiic_writebyte.v Line: 46
+Warning (10268): Verilog HDL information at myiic_writebyte.v(79): always construct contains both blocking and non-blocking assignments File: E:/FPGA_Study/MyStudy2/LCD1602_IIC/rtl/myiic_writebyte.v Line: 79
+Info (10281): Verilog HDL Declaration information at myiic_writebyte.v(8): object "done" differs only in case from object "Done" in the same scope File: E:/FPGA_Study/MyStudy2/LCD1602_IIC/rtl/myiic_writebyte.v Line: 8
+Info (10281): Verilog HDL Declaration information at lcd_write_cmd_data.v(9): object "done" differs only in case from object "Done" in the same scope File: E:/FPGA_Study/MyStudy2/LCD1602_IIC/rtl/lcd_write_cmd_data.v Line: 9
+Warning (10268): Verilog HDL information at lcd_init.v(80): always construct contains both blocking and non-blocking assignments File: E:/FPGA_Study/MyStudy2/LCD1602_IIC/rtl/lcd_init.v Line: 80

@@ -1,0 +1,32 @@
+`timescale 1ns/1ns //仿真单位为1ns，精度为1ns
+module myiic_writebyte_tb();
+	reg clk;
+	reg rst_n;
+	reg en_write;
+	reg data;
+	wire SDA;
+	wire SCL;
+	wire done;
+	
+	myiic_writebyte myiic_writebyte_inst(
+		.clk(clk),
+		.rst_n(rst_n),
+		.en_write(en_write),
+		.data(data),
+		.SDA(SDA),
+		.SCL(SCL),
+		.done(done)
+	);
+	
+	initial begin
+		#0 	clk = 0;
+			rst_n = 0;
+			data = 8'b11010101;
+			en_write = 1;
+			
+		#20	rst_n = 1;
+	end
+	
+	always #5 clk = ~clk;
+
+endmodule

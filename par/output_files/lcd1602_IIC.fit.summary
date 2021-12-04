@@ -1,0 +1,16 @@
+Fitter Status : Successful - Sat Dec  4 15:56:30 2021
+Quartus Prime Version : 21.1.0 Build 842 10/21/2021 SJ Lite Edition
+Revision Name : lcd1602_IIC
+Top-level Entity Name : lcd_drive
+Family : Cyclone IV E
+Device : EP4CE10F17C8
+Timing Models : Final
+Total logic elements : 1,139 / 10,320 ( 11 % )
+    Total combinational functions : 752 / 10,320 ( 7 % )
+    Dedicated logic registers : 884 / 10,320 ( 9 % )
+Total registers : 884
+Total pins : 4 / 180 ( 2 % )
+Total virtual pins : 0
+Total memory bits : 3,968 / 423,936 ( < 1 % )
+Embedded Multiplier 9-bit elements : 0 / 46 ( 0 % )
+Total PLLs : 0 / 2 ( 0 % )

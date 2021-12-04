@@ -1,0 +1,90 @@
+module myiic_writebyte(
+	input clk,
+	inout rst_n,
+	input en_write,
+	input [7:0] data,
+	inout SDA,
+	output reg SCL,
+	output reg done
+);
+
+parameter DELAY 5
+reg [20:0] us_cnt;			//us计数器
+reg us_cnt_clr;				//计数器清零信号
+
+parameter WaitEN,Start,WriteL,WriteH,Stop,WaitAck,Done;
+reg[2:0] state,next_state;
+reg [3:0] cnt;
+
+
+//1微秒计数器
+always @ (posedge clk,negedge rst_n) begin
+    if (!rst_n)
+        us_cnt <= 21'd0;
+    else if (us_cnt_clr)
+        us_cnt <= 21'd0;
+    else 
+        us_cnt <= us_cnt + 1'b1;
+end 
+
+always @(*) begin
+	if(!rst_n)
+		next_state <= Init;
+	else begin
+		case(state)
+			WaitEN: next_state = en_write ? Start : WaitEN;
+			Start: next_state = (us_cnt == DELAY) ? WriteL : Start;
+			WriteL: next_state = (us_cnt == DELAY) ? WriteH : WriteL;
+			WriteH: next_state = (us_cnt == DELAY && cnt == 4'd8) ? Stop : ((us_cnt == DELAY) ? WriteH : WriteL);
+			Stop: next_state = (us_cnt == 3) ? WaitAck : Stop;
+			WaitAck: next_state = (SDA == 1'b0) ? Done : WaitAck;
+			Done: next_state = WaitEN;
+		endcase
+	end
+end
+
+always @(posedge clk,negedge rst_n) begin
+	if(!rst_n)begin
+		SDA <= 1'b1;
+		SCL <= 1'b1;
+		us_cnt_clr <= 1'b1;
+	end
+	else begin
+		case(state)
+			WaitEN:begin
+				SDA <= 1'b1;
+				SCL <= 1'b1;
+				us_cnt_clr <= 1'b1;
+			end
+			Start:begin 
+				SDA = 1'b0;
+				us_cnt_clr <= (us_cnt == DELAY) ? 1'b1 : 1'b0;
+			end
+			WriteL:begin
+				SCL <= 1'b0;
+				SDA <= data[cnt] ? 1'b1 : 1'b0;
+				us_cnt_clr <= (us_cnt == DELAY) ? 1'b1 : 1'b0;
+			end
+			WriteH:begin
+				SCL <= 1'b1;
+				us_cnt_clr <= (us_cnt == DELAY) ? 1'b1 : 1'b0;
+			end
+			WaitAck:begin
+				SDA <= 1'b1;
+				SCL <= 1'b1;
+				us_cnt_clr <= (us_cnt == 3) ? 1'b1 : 1'b0;
+			end
+		endcase
+	end
+end
+
+always @(posedge clk,negedge rst_n)begin
+	if(!rst_n)
+		state <= WaitEN;
+	else
+		state <= next_state;
+end
+
+assign done = (state == Done);
+
+endmodule

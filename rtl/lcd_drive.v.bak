@@ -1,0 +1,34 @@
+module lcd_drive(
+	input clk,
+	input rst_n,
+	output scl,
+	inout sda
+);
+
+wire done_write;
+wire [7:0] data;
+wire cmd_data;
+wire ena_write;
+
+lcd_init u_lcd_init(
+	.clk(clk_1m),
+	.rst_n(rst_n),
+	.ena(1'b1),
+	.done_write(done_write)
+	.data(data),
+	.cmd_data(cmd_data),
+	.ena_write(ena_write)
+);
+
+lcd_write_cmd_data u_lcd_write_cmd_data(
+	.clk(clk),
+	.rst_n(rst_n),
+	.ena(ena_write),
+	.data(data),
+	.cmd_data(cmd_data),
+	.sda(sda),
+	.scl(scl),
+	.done(done_write)
+);
+
+endmodule

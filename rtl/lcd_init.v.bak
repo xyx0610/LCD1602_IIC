@@ -1,0 +1,103 @@
+module lcd_init(
+	input clk,
+	input rst_n,
+	input ena,
+	input done_write,
+	output [7:0] data,
+	output cmd_data,
+	output ena_write
+);
+
+parameter DELAY = 50;
+reg [20:0] us_cnt;			//us计数器
+reg us_cnt_clr;				//计数器清零信号
+
+reg [7:0]init_cmd_data_data[14:0];
+reg [3:0]initcd_cnt;
+
+initial begin
+	init_cmd_data[0] = 8'h33;init_cmd_data[1] = 8'h32;init_cmd_data[2] = 8'h28;
+	init_cmd_data[3] = 8'h0C;init_cmd_data[4] = 8'h06;init_cmd_data[5] = 8'h01;
+	
+	//HelloWorld
+	init_cmd_data[6] = 8'h48;init_cmd_data[7] = 8'h65;init_cmd_data[8] = 8'h6C;
+	init_cmd_data[9] = 8'h6C;init_cmd_data[10] = 8'h6F;init_cmd_data[11] = 8'h57;
+	init_cmd_data[12] = 8'h6F;init_cmd_data[13] = 8'h6C;init_cmd_data[14] = 8'h64;
+end
+
+parameter WaitEn=0,Write=1,WaitWrite=2,Done=3;
+reg[2:0] state,next_state;
+
+assign cmd_data = (initcd_cnt<3'd6) ? 1'b0 : 1'b1;
+
+//1微秒计数器
+always @ (posedge clk,negedge rst_n) begin
+    if (!rst_n)
+        us_cnt <= 21'd0;
+    else if (us_cnt_clr)
+        us_cnt <= 21'd0;
+    else 
+        us_cnt <= us_cnt + 1'b1;
+end
+
+always @(*) begin
+	if(!rst_n)
+		next_state = WaitEn;
+	else begin
+		case(state)
+			WaitEn: next_state = ena ? Write : WaitEn;
+			Write: next_state = WaitWrite;
+			WaitWrite: next_state = (done_write&&initcd_cnt==4'd15) ? Done : (done_write&&us_cnt==DELAY ? Write : WaitWrite);
+			Done:next_state = WaitEn;
+		endcase
+	end
+end
+
+always @(posedge clk,negedge rst_n) begin
+	if(!rst_n)begin
+		us_cnt_clr = 1'b1;
+		ena_write <= 1'b0;
+	end
+	else begin
+		case(state)
+			WaitEn:begin
+				us_cnt_clr = 1'b1;
+				ena_write <= 1'b0;
+			end
+			
+			Write:begin
+				data <= init_cmd_data[initcd_cnt];
+				ena_write <= 1'b1;
+			end
+			
+			WaitWrite:begin
+				ena_write <= 1'b0;
+			end
+		endcase
+	end
+end
+
+always @(posedge clk,negedge rst_n) begin
+	if(!rst_n)
+		state <= WaitEn;
+	else
+		state <= next_state;
+end
+
+always @(posedge clk,negedge rst_n) begin
+	if(!rst_n)begin
+		initcd_cnt <= 4'd0;
+	end
+	else begin
+		if(state ==  Write)
+			initcd_cnt <= initcd_cnt + 1'b1;
+		else
+			initcd_cnt <= initcd_cnt;
+	end
+end
+
+
+
+
+
+endmodule

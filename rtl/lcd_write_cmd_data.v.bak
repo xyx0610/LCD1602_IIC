@@ -1,0 +1,108 @@
+module lcd_write_cmd_data(
+	input clk,
+	input rst_n,
+	input [7:0]data,
+	input cmd_data,
+	input ena,
+	inout SDA,
+	output SCL,
+	output done
+);
+parameter DELAY = 25;
+reg [20:0] us_cnt;			//us计数器
+reg us_cnt_clr;				//计数器清零信号
+
+parameter WaitEn,WriteAddr,WriteHE,WriteHNE,Wait1,WriteLE,WriteLNE,Wait2,Done;
+reg[3:0] state,next_state;
+reg en_write;
+
+wire en_iicwrite = en_write;
+wire iic_done;
+reg [7:0] iic_data;
+
+//1微秒计数器
+always @ (posedge clk,negedge rst_n) begin
+    if (!rst_n)
+        us_cnt <= 21'd0;
+    else if (us_cnt_clr)
+        us_cnt <= 21'd0;
+    else 
+        us_cnt <= us_cnt + 1'b1;
+end 
+
+always @(*) begin
+	if(!rst_n)
+		next_state = WaitEn;
+	else begin
+		case(state)
+			WaitEn: next_state = ena ? WriteAddr : WaitEn;
+			WriteAddr: next_state = iic_done ? WriteHE : WriteAddr;
+			WriteHE: next_state = iic_done ? WriteHNE : WriteHE;
+			WriteHNE: next_state = iic_done ? Wait1 : WriteHNE;
+			Wait1: next_state = (us_cnt == DELAY) ? WriteLE : Wait1;
+			WriteLE: next_state = iic_done ? WriteLNE : WriteLE;
+			WriteLNE: next_state = iic_done ? Done : Wait2;
+			Wait2: next_state = (us_cnt == DELAY) ? Done : Wait2;
+			Done: next_state = WaitEn;
+		endcase
+	end
+end
+
+always @(posedge clk,negedge rst_n) begin
+	if(!rst_n)begin
+		iic_data <= 8'd0;
+		en_write <= 1'b0;
+		us_cnt_clr <= 1'b1;
+	end
+	else begin
+		case(state)
+			WaitEn:
+			WriteAddr:begin
+				iic_data <= 8'h4E;
+				en_write <= 1'b1;
+			end
+			WriteHE:begin
+				iic_data <= (data & 8'hF0) | 8'h0C | cmd_data<<1;
+			end
+			WriteHNE:begin
+				iic_data <= (data & 8'hF0) | 8'h0B | cmd_data<<1;
+			end
+			Wait1:begin
+				en_write <= 1'b0;
+				us_cnt_clr <= (us_cnt == DELAY-1) ? 1'b1:1'b0;
+			end
+			WriteLE:begin
+				en_write <= 1'b1;
+				iic_data <= ((data & 8'h0F)<<4) | 8'h0C | cmd_data<<1;
+			end
+			WriteLNE:begin
+				iic_data <= ((data & 8'h0F)<<4) | 8'h0B | cmd_data<<1;
+			end
+			Wait2:begin
+				en_write <= 1'b0;
+				us_cnt_clr <= (us_cnt == DELAY-1) ? 1'b1:1'b0;
+			end
+		endcase
+	end
+end
+
+always @(posedge clk,negedge rst_n) begin
+	if(!rst_n)
+		state <= WaitEn;
+	else
+		state <= next_state;
+end
+
+assign done = (state == Done);
+
+myiic_writebyte myiic_writebyte_inst(
+	.clk(clk),
+	.rst_n(rst_n),
+	.en_write(en_iicwrite),
+	.data(iic_data),
+	.SDA(SDA),
+	.SCL(SCL),
+	.done(iic_done)
+);
+
+endmodule

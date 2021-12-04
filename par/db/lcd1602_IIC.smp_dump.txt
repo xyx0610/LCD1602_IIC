@@ -1,0 +1,36 @@
+
+State Machine - |lcd_drive|lcd_write_cmd_data:u_lcd_write_cmd_data|state
+Name state.Done state.WaitWLNE state.WriteLNE state.WaitCMD2 state.WaitWLE state.WriteLE state.WaitWHNE state.WriteHNE state.WaitCMD1 state.WaitWHE state.WriteHE state.WaitWA state.WriteAddr state.WaitEn 
+state.WaitEn 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state.WriteAddr 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state.WaitWA 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state.WriteHE 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state.WaitWHE 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state.WaitCMD1 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state.WriteHNE 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state.WaitWHNE 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state.WriteLE 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state.WaitWLE 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state.WaitCMD2 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state.WriteLNE 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state.WaitWLNE 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state.Done 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |lcd_drive|lcd_write_cmd_data:u_lcd_write_cmd_data|myiic_writebyte:myiic_writebyte_inst|state
+Name state.Done state.WaitAck state.Stop state.ReadyStop state.WriteH state.WriteL state.Start state.WaitEn 
+state.WaitEn 0 0 0 0 0 0 0 0 
+state.Start 0 0 0 0 0 0 1 1 
+state.WriteL 0 0 0 0 0 1 0 1 
+state.WriteH 0 0 0 0 1 0 0 1 
+state.ReadyStop 0 0 0 1 0 0 0 1 
+state.Stop 0 0 1 0 0 0 0 1 
+state.WaitAck 0 1 0 0 0 0 0 1 
+state.Done 1 0 0 0 0 0 0 1 
+
+State Machine - |lcd_drive|lcd_init:u_lcd_init|state
+Name state.Done state.WaitDelay state.Write state.WaitEn state.WaitWrite 
+state.WaitEn 0 0 0 0 0 
+state.Write 0 0 1 1 0 
+state.WaitWrite 0 0 0 1 1 
+state.WaitDelay 0 1 0 1 0 
+state.Done 1 0 0 1 0 
