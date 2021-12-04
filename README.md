@@ -1,0 +1,2 @@
+# LCD1602_IIC
+使用FPGA 驱动IIC的LCD1602 Verilog代码
